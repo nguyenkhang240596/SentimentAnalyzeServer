@@ -48,13 +48,13 @@ class SimpleHTTP(BaseHTTPRequestHandler):
 
         # get data in setence field
         sentence = obj["sentence"]
-        print("receive : ",sentence)
+        commentId = obj["commentId"]
+        print("receive : ",sentence, '- commentid : ', commentId)
 
-        res = sentimentAnalyze.processing(sentence)
-
+        res = sentimentAnalyze.processing(sentence, commentId)
         # convert res to bytes
-        # res = str.encode(res)
-        # self.wfile.write(res)
+        res = str.encode(res)
+        self.wfile.write(res)
 
     def do_OPTIONS(self):
         self._set_cors_headers()

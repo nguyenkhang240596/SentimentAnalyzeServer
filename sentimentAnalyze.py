@@ -202,12 +202,14 @@ pd.set_option('display.max_columns', 500)
 
 
 from tqdm import tqdm
-def processing(sentence):
+def processing(sentence, commentId):
     sentimentDb = db.Web_Comment_Analyzed
     print("handling sentence : ", sentence)
     obj = sentimentAnalysisExecute(sentence)
+    obj['commentId'] = commentId
     print(obj)
     sentimentDb.insert(obj)
+    return obj['predict']
 
 # def start():
 #     database = db.vnexpresses
