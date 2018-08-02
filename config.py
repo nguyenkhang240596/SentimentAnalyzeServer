@@ -1,12 +1,12 @@
-# server_ip = '0.0.0.0'
-# server_port =  3333
-# host = "ds237669.mlab.com"
-# port = 37669
-
 server_ip = '0.0.0.0'
 server_port =  3333
-host = "ds155278.mlab.com"
-port = 55278
+host = "ds237669.mlab.com"
+port = 37669
+
+# server_ip = '0.0.0.0'
+# server_port =  3333
+# host = "ds155278.mlab.com"
+# port = 55278
 
 # server_ip = 'localhost'
 # server_port =  3333
