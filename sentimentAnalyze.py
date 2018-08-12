@@ -142,10 +142,17 @@ def analyzingSentence(sentence):
                     finalValue = wordsValue[0]
                 elif len(wordsValue) > 1:
                     #sum all value of words if we have more than one word
-                    finalValue = sum(wordsValue[0:len(wordsValue)])
+                    for x in wordsValue:
+                        if (abs(x) > abs(finalValue) or (abs(x) == abs(finalValue) and x < 0) ):
+                            finalValue = x
                 arrWords["content"][_feature] = content
                 arrWords["score"][_feature] = wordsValue
-                vectorSentimentValues[_feature] += finalValue
+                # print('-', vectorSentimentValues[_feature].any(), type(vectorSentimentValues[_feature].any()))
+
+                curVal = vectorSentimentValues[_feature].any()
+                if (abs(finalValue) > abs(curVal) or (abs(curVal) == abs(finalValue) and finalValue < 0)):
+                    vectorSentimentValues[_feature] = finalValue
+                # vectorSentimentValues[_feature] += finalValue
                 # content includes words which is relative features
                 # It actually helps to debug
                 # content includes words which is relative features
@@ -160,7 +167,7 @@ def analyzingSentence(sentence):
 
 def predictSentence(sentence, vectorSentimentValues):
     # xây dựng vector biễu diễn trọng số cảm xúc
-    inp = vectorSentimentValues.values.reshape((15,))
+    inp = vectorSentimentValues.values.reshape((len(dbFeatures),))
     G = inp
     P = (G > 0) * G # < 0 to take positive words
     N = (G < 0) * G # > ) to take negative words
@@ -188,8 +195,8 @@ def sentimentAnalysisExecute(sentence):
     sentence = ut.formatText(sentence)
     # res = analyzingSentence(sentence)
     [vectorSentimentValues, arrWords] = analyzingSentence(sentence)
+    # print("*", vectorSentimentValues, arrWords)
     semtinentOfSentence = predictSentence(sentence, vectorSentimentValues)
-
     obj["sentence"] = sentence
     obj["score"] = vectorSentimentValues.values[0,:].tolist()
     obj["predict"] = semtinentOfSentence
@@ -208,36 +215,33 @@ def processing(sentence, commentId):
     obj = sentimentAnalysisExecute(sentence)
     obj['commentId'] = commentId
     print(obj)
-    sentimentDb.insert(obj)
+    # sentimentDb.insert(obj)
     return obj['predict']
 
 # def start():
+#     #read comments from collection vnexpresses
 #     database = db.vnexpresses
+#     #results will be store in collection sentiment analysis
 #     sentimentDb = db.sentiment_analysis
 #     sentimentDb.drop()
-#
-#     sentence = "ĐT màn hình hơi xấu, camera đẹp, pin khá trâu, nói chung là khá okay"
-#     result = sentimentAnalysisExecute(sentence)
-#     print(result)
-#     print("câu :", result["sentence"])
-#     print("predict value :", result["predict"])
-#     print("giá trị của các từ trong từ điển: \n", result["corpus"]["score"])
-#     print("các từ trong từ điển: \n", result["corpus"]["content"])
-#
-#     # queryData = database.find({}).distinct("content")
-#     # print(len(queryData))
-#     # for record in tqdm(queryData):
-#     #     # if "Đâu đâu cũng iphone với các loại điệ" in record:
-#     #     # print("handling", record)
-#     #     obj = sentimentAnalysisExecute(record)
-#     #     # print(obj)
-#     #     sentimentDb.insert(obj)
-#
-#
+#     queryData = database.find({}).distinct("content")
+#     print("Tổng câu xử lý : ", str(len(queryData)))
+#     for record in tqdm(queryData):
+#         obj = sentimentAnalysisExecute(record)
+#         # sentimentDb.insert(obj)
+
+def start():
+    sentence = "giá rất cao, pin trâu"
+    result = sentimentAnalysisExecute(sentence)
+    print("câu :", result["sentence"])
+    print("cảm xúc của câu sau khi xử lý :", result["predict"])
+    print("giá trị của các từ trong từ điển: \n", result["corpus"]["score"])
+    print("các từ trong từ điển: \n", result["corpus"]["content"])
+
 #     #debug1
 #     # record = "Ai thích sang chanh thì Táo, tôi thì ĐT màn hình xấu, camera đẹp, pin khá trâu, cấu hình vừa phải, nhưng giá quá mắc"
 #     # record = "cấu hình so với 1 em điện thoại nắp gập thế này là ổn rồi  bị cái pin hơi thốn cơ mà màn hình cũng chỉ là qvga nên chắc thoải mái  và nữa là pin cũng tháo rời được mà nên có thể thay thế luôn được  mình không"
 #
 #     # sentimentAnalysisExecute(record)
 #
-# start()
+start()
