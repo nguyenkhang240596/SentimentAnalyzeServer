@@ -5,6 +5,9 @@ from sklearn.cluster import KMeans
 import math
 import config
 
+# import sklearn
+# print('The scikit-learn version is {}.'.format(sklearn.__version__))
+
 # uri = 'mongodb://localhost:27017/VNLP'
 # db = MongoClient(uri).get_database()
 
