@@ -4,20 +4,23 @@ def WordOfText(s):
     s = s.strip().lower()
     #regex <[^>]*>.*<\/[^>]*> -> '' , replace html to empty
     # s = s.replace(',', ' ')
-    s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    # s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:/<>?\|`~-=_+"})
     s = ' '.join(s.split())
     return s.split(' ')
 
 def formatText(s):
     s = s.strip().lower()
-    s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    # s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    s = s.translate({ord(c): " " for c in "!@#$%^&*()[]{};:/<>?\|`~-=_+"})
     return s
-
 
 def separate(sentence):
     import re
     # return re.split("\.|,", sentence)
-    return re.split("\.", sentence)
+    # return re.split("\.", sentence)
+    # return re.split("\.", sentence)
+    return re.split("\.|\?|\!|\n", sentence)
 
 
 def cosine_similarity(v1, v2):

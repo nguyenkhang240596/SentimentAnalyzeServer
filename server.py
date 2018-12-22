@@ -48,7 +48,9 @@ class SimpleHTTP(BaseHTTPRequestHandler):
 
         # get data in setence field
         sentence = obj["sentence"]
-        commentId = obj["commentId"]
+        commentId = ""
+        if "commentId" in obj and obj["commentId"] != None:
+            commentId = obj["commentId"]
         print("receive : ",sentence, '- commentid : ', commentId)
 
         res = sentimentAnalyze.processing(sentence, commentId)

@@ -9,6 +9,8 @@ uri = 'mongodb://%s:%s@%s:%s/%s' % (config.username, config.password, config.hos
 # uri = 'mongodb://localhost:27017/VNLP'
 db = MongoClient(uri).get_database()
 
+print("sentiment based on" , uri)
+
 # client = MongoClient('localhost', 27017)
 # db = client.VNLP
 corpusCollection = db.Corpus
@@ -16,8 +18,10 @@ dbFeatures = db.Corpus.distinct("feature")
 # columns = dbFeatures
 
 
+
 # valuable word means that the word have a specific value in the sentence
 def findValuableWordsOfFeature(text, feature):
+    text = text.replace(',', ' ')
     Terms = []
     EmotionalValues = []
     w = ut.WordOfText(text)
@@ -76,7 +80,7 @@ def findFeatureInSentence(text):
                 #                 print(pos, count, len(wordsInSentence))
                 count += 1
 
-            #             print(pos, count, len(wordsInSentence), ";" + temp + ";", dbFeatures)
+                # print(pos, count, len(wordsInSentence), ";" + temp + ";", dbFeatures)
 
             if temp in dbFeatures:
                 features.append(temp)
@@ -127,6 +131,7 @@ def analyzingSentence(sentence):
         for _sentence2 in seperateSentenceByFeatures(_sentence1):
             #find the feature in sentence2 which is a small part of sentence 1
             features = findFeatureInSentence(_sentence2)
+            # print(_sentence2, "[features] : ", features)
             if len(features) == 1:
                 #take the feature from list features
                 _feature = features[0]
@@ -141,12 +146,14 @@ def analyzingSentence(sentence):
                     #take value of word
                     finalValue = wordsValue[0]
                 elif len(wordsValue) > 1:
-                    #sum all value of words if we have more than one word
+                    #take the abs(val) max of all value of words if we have more than one word in one feature
                     for x in wordsValue:
                         if (abs(x) > abs(finalValue) or (abs(x) == abs(finalValue) and x < 0) ):
                             finalValue = x
                 arrWords["content"][_feature] = content
-                arrWords["score"][_feature] = wordsValue
+                # arrWords["score"][_feature] = wordsValue
+
+                arrWords["score"][_feature] = finalValue
                 # print('-', vectorSentimentValues[_feature].any(), type(vectorSentimentValues[_feature].any()))
 
                 curVal = vectorSentimentValues[_feature].any()
@@ -157,10 +164,6 @@ def analyzingSentence(sentence):
                 # It actually helps to debug
                 # content includes words which is relative features
                 # It actually helps to debug
-            # elif len(features) > 1:
-            #     feature = "|".join([x for x in dbFeatures])
-            #
-            #     print("Not supported yet! \t ", len(features), "\n", sentence)
 
     return [vectorSentimentValues, arrWords]
 
@@ -215,29 +218,21 @@ def processing(sentence, commentId):
     obj = sentimentAnalysisExecute(sentence)
     obj['commentId'] = commentId
     print(obj)
-    # sentimentDb.insert(obj)
+    sentimentDb.insert(obj)
     return obj['predict']
 
-# def start():
-#     #read comments from collection vnexpresses
-#     database = db.vnexpresses
-#     #results will be store in collection sentiment analysis
-#     sentimentDb = db.sentiment_analysis
-#     sentimentDb.drop()
-#     queryData = database.find({}).distinct("content")
-#     print("Tổng câu xử lý : ", str(len(queryData)))
-#     for record in tqdm(queryData):
-#         obj = sentimentAnalysisExecute(record)
-#         # sentimentDb.insert(obj)
+def start(sentence):
+    # sentence = "điện thoại có kiểu dáng đẹp"
+    # sentence = "Độc nhất là mi Mix 3, vì nó thích vụ trượt và màn hình viền mỏng liền lạc, nhìn cực kì ấn tượng. Mình đang tính mua 1 con, mà đang đợi bản quốc tế chứ không thích bản TQ lắm"
+    # sentence = "Bạn mua k touch w700 ý, ram 512mb, chip lõi kép 1ghz, màn hình 3,7inch. Mà giá rẻ, có 4tr4 một chiếc giá rẻ "
 
-def start():
-    sentence = "giá rất cao, pin trâu"
     result = sentimentAnalysisExecute(sentence)
-    print("câu :", result["sentence"])
-    print("cảm xúc của câu sau khi xử lý :", result["predict"])
-    print("giá trị của các từ trong từ điển: \n", result["corpus"]["score"])
+    print("câu bình luận : ",  "\"" + result["sentence"] + "\"")
+    print("giá trị của các từ cảm xúc trong từ điển: \n", result["corpus"]["score"])
     print("các từ trong từ điển: \n", result["corpus"]["content"])
-
+    print("score :", result["score"])
+    print("cảm xúc của câu (cosine similarity) :", result["predict"])
+    
 #     #debug1
 #     # record = "Ai thích sang chanh thì Táo, tôi thì ĐT màn hình xấu, camera đẹp, pin khá trâu, cấu hình vừa phải, nhưng giá quá mắc"
 #     # record = "cấu hình so với 1 em điện thoại nắp gập thế này là ổn rồi  bị cái pin hơi thốn cơ mà màn hình cũng chỉ là qvga nên chắc thoải mái  và nữa là pin cũng tháo rời được mà nên có thể thay thế luôn được  mình không"
