@@ -220,8 +220,11 @@ def processing(sentence, commentId):
     obj = sentimentAnalysisExecute(sentence)
     obj['commentId'] = commentId
     print(obj)
+
+    kmeanPredicted = Kmeans.predict(obj["score"])
+    obj['predict'] = kmeanPredicted
     sentimentDb.insert(obj)
-    print("cảm xúc của câu dùng kmeans :", Kmeans.predict(obj["score"]))
+    print("cảm xúc của câu dùng kmeans :", kmeanPredicted)
 
     return obj['predict']
 
