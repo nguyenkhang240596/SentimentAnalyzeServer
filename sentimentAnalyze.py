@@ -1,6 +1,8 @@
 from pymongo import MongoClient
 import numpy as np
 import pandas as pd
+
+import Kmeans
 import utils as ut
 import config
 
@@ -219,6 +221,8 @@ def processing(sentence, commentId):
     obj['commentId'] = commentId
     print(obj)
     sentimentDb.insert(obj)
+    print("cảm xúc của câu dùng kmeans :", Kmeans.predict(obj["score"]))
+
     return obj['predict']
 
 def start(sentence):
@@ -232,11 +236,11 @@ def start(sentence):
     print("các từ trong từ điển: \n", result["corpus"]["content"])
     print("score :", result["score"])
     print("cảm xúc của câu (cosine similarity) :", result["predict"])
-    
+
 #     #debug1
 #     # record = "Ai thích sang chanh thì Táo, tôi thì ĐT màn hình xấu, camera đẹp, pin khá trâu, cấu hình vừa phải, nhưng giá quá mắc"
 #     # record = "cấu hình so với 1 em điện thoại nắp gập thế này là ổn rồi  bị cái pin hơi thốn cơ mà màn hình cũng chỉ là qvga nên chắc thoải mái  và nữa là pin cũng tháo rời được mà nên có thể thay thế luôn được  mình không"
 #
 #     # sentimentAnalysisExecute(record)
 #
-start()
+# start()
